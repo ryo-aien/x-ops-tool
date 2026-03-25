@@ -1,0 +1,299 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id        String   @id @default(uuid())
+  name      String
+  plan      String   @default("free")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  users             User[]
+  xAccounts         XAccount[]
+  posts             Post[]
+  guardrails        Guardrail[]
+  campaigns         Campaign[]
+  listeningKeywords ListeningKeyword[]
+  auditLogs         AuditLog[]
+
+  @@map("organizations")
+}
+
+model User {
+  id        String   @id @default(uuid())
+  orgId     String   @map("org_id")
+  email     String   @unique
+  name      String
+  role      String   @default("viewer") // admin | approver | editor | viewer
+  avatarUrl String?  @map("avatar_url")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  organization        Organization              @relation(fields: [orgId], references: [id])
+  accountPermissions  UserAccountPermission[]
+  authoredPosts       Post[]                    @relation("PostAuthor")
+  approvedPosts       Post[]                    @relation("PostApprover")
+  assignedInboxItems  InboxItem[]
+  auditLogs           AuditLog[]
+
+  // NextAuth required fields
+  accounts Account[]
+  sessions Session[]
+
+  @@map("users")
+}
+
+model Account {
+  id                String  @id @default(uuid())
+  userId            String  @map("user_id")
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(uuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id")
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model XAccount {
+  id              String    @id @default(uuid())
+  orgId           String    @map("org_id")
+  xUserId         String    @unique @map("x_user_id")
+  handle          String
+  name            String
+  avatarUrl       String?   @map("avatar_url")
+  verified        Boolean   @default(false)
+  category        String?
+  status          String    @default("active") // active | paused
+  tokenEncrypted  String    @map("token_encrypted") @db.Text
+  tokenExpiresAt  DateTime  @map("token_expires_at")
+  followersCount  Int       @default(0) @map("followers_count")
+  followingCount  Int       @default(0) @map("following_count")
+  postsCount      Int       @default(0) @map("posts_count")
+  lastPostAt      DateTime? @map("last_post_at")
+  createdAt       DateTime  @default(now()) @map("created_at")
+
+  organization       Organization            @relation(fields: [orgId], references: [id])
+  permissions        UserAccountPermission[]
+  postVariants       PostVariant[]
+  inboxItems         InboxItem[]
+  analyticsSnapshots AnalyticsSnapshot[]
+  campaignAccounts   CampaignAccount[]
+
+  @@map("x_accounts")
+}
+
+model UserAccountPermission {
+  userId      String @map("user_id")
+  xAccountId  String @map("x_account_id")
+  role        String @default("viewer") // admin | approver | editor | viewer
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  xAccount  XAccount @relation(fields: [xAccountId], references: [id], onDelete: Cascade)
+
+  @@id([userId, xAccountId])
+  @@map("user_account_permissions")
+}
+
+model Post {
+  id           String    @id @default(uuid())
+  orgId        String    @map("org_id")
+  status       String    @default("draft") // draft | pending | approved | rejected | scheduled | published | failed
+  scheduledAt  DateTime? @map("scheduled_at")
+  publishedAt  DateTime? @map("published_at")
+  authorId     String    @map("author_id")
+  approverId   String?   @map("approver_id")
+  rejectReason String?   @map("reject_reason") @db.Text
+  campaignId   String?   @map("campaign_id")
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+
+  organization Organization  @relation(fields: [orgId], references: [id])
+  author       User          @relation("PostAuthor", fields: [authorId], references: [id])
+  approver     User?         @relation("PostApprover", fields: [approverId], references: [id])
+  campaign     Campaign?     @relation(fields: [campaignId], references: [id])
+  variants     PostVariant[]
+
+  @@index([orgId, status, scheduledAt])
+  @@map("posts")
+}
+
+model PostVariant {
+  id          String   @id @default(uuid())
+  postId      String   @map("post_id")
+  xAccountId  String   @map("x_account_id")
+  text        String   @db.Text
+  mediaUrls   Json     @default("[]") @map("media_urls")
+  xTweetId    String?  @map("x_tweet_id")
+
+  post      Post     @relation(fields: [postId], references: [id], onDelete: Cascade)
+  xAccount  XAccount @relation(fields: [xAccountId], references: [id])
+
+  @@unique([postId, xAccountId])
+  @@map("post_variants")
+}
+
+model InboxItem {
+  id          String   @id @default(uuid())
+  xAccountId  String   @map("x_account_id")
+  type        String   // mention | reply | quote | dm
+  fromHandle  String   @map("from_handle")
+  fromUserId  String?  @map("from_user_id")
+  text        String   @db.Text
+  xTweetId    String?  @map("x_tweet_id")
+  status      String   @default("unread") // unread | assigned | done
+  assigneeId  String?  @map("assignee_id")
+  priority    String   @default("normal") // urgent | high | normal | low
+  receivedAt  DateTime @default(now()) @map("received_at")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  xAccount XAccount @relation(fields: [xAccountId], references: [id])
+  assignee User?    @relation(fields: [assigneeId], references: [id])
+
+  @@index([xAccountId, status])
+  @@map("inbox_items")
+}
+
+model AnalyticsSnapshot {
+  id          String   @id @default(uuid())
+  xAccountId  String   @map("x_account_id")
+  date        DateTime @db.Date
+  impressions BigInt   @default(0)
+  engagements Int      @default(0)
+  likes       Int      @default(0)
+  retweets    Int      @default(0)
+  replies     Int      @default(0)
+  clicks      Int      @default(0)
+  followers   Int      @default(0)
+  following   Int      @default(0)
+
+  xAccount XAccount @relation(fields: [xAccountId], references: [id])
+
+  @@unique([xAccountId, date])
+  @@index([xAccountId, date])
+  @@map("analytics_snapshots")
+}
+
+model ListeningKeyword {
+  id             String   @id @default(uuid())
+  orgId          String   @map("org_id")
+  keyword        String
+  type           String   @default("custom") // brand | hashtag | competitor | risk | industry | custom
+  alertThreshold Int?     @default(10) @map("alert_threshold")
+  enabled        Boolean  @default(true)
+  createdAt      DateTime @default(now()) @map("created_at")
+
+  organization Organization       @relation(fields: [orgId], references: [id])
+  mentions     ListeningMention[]
+
+  @@map("listening_keywords")
+}
+
+model ListeningMention {
+  id            String   @id @default(uuid())
+  keywordId     String   @map("keyword_id")
+  xTweetId      String   @map("x_tweet_id")
+  text          String   @db.Text
+  sentiment     Float    @default(0.5)
+  authorHandle  String?  @map("author_handle")
+  createdAt     DateTime @default(now()) @map("created_at")
+
+  keyword ListeningKeyword @relation(fields: [keywordId], references: [id], onDelete: Cascade)
+
+  @@index([keywordId, createdAt])
+  @@map("listening_mentions")
+}
+
+model Guardrail {
+  id         String   @id @default(uuid())
+  orgId      String   @map("org_id")
+  name       String
+  type       String   // content | media | link | schedule | legal
+  configJson Json     @default("{}") @map("config_json")
+  enabled    Boolean  @default(true)
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+
+  @@map("guardrails")
+}
+
+model Campaign {
+  id        String   @id @default(uuid())
+  orgId     String   @map("org_id")
+  name      String
+  status    String   @default("planned") // planned | active | completed
+  startDate DateTime @map("start_date") @db.Date
+  endDate   DateTime @map("end_date") @db.Date
+  budget    Int      @default(0)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  organization     Organization      @relation(fields: [orgId], references: [id])
+  posts            Post[]
+  campaignAccounts CampaignAccount[]
+
+  @@map("campaigns")
+}
+
+model CampaignAccount {
+  campaignId  String @map("campaign_id")
+  xAccountId  String @map("x_account_id")
+
+  campaign Campaign @relation(fields: [campaignId], references: [id], onDelete: Cascade)
+  xAccount XAccount @relation(fields: [xAccountId], references: [id])
+
+  @@id([campaignId, xAccountId])
+  @@map("campaign_accounts")
+}
+
+model AuditLog {
+  id         String   @id @default(uuid())
+  orgId      String   @map("org_id")
+  userId     String?  @map("user_id")
+  action     String
+  targetType String   @map("target_type")
+  targetId   String?  @map("target_id") @db.Uuid
+  detail     String?  @db.Text
+  ipAddress  String?  @map("ip_address")
+  userAgent  String?  @map("user_agent") @db.Text
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  organization Organization @relation(fields: [orgId], references: [id])
+  user         User?        @relation(fields: [userId], references: [id])
+
+  @@index([orgId, createdAt(sort: Desc)])
+  @@map("audit_logs")
+}

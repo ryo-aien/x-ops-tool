@@ -1,0 +1,65 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --x-bg: #000000;
+  --x-surface: #16181C;
+  --x-border: #2F3336;
+  --x-text: #E7E9EA;
+  --x-text-muted: #71767B;
+  --x-text-sub: #536471;
+  --x-blue: #1D9BF0;
+  --x-blue-hover: #1A8CD8;
+  --x-green: #00BA7C;
+  --x-red: #F4212E;
+  --x-yellow: #FFD400;
+  --background: #000000;
+  --foreground: #E7E9EA;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  color: var(--x-text);
+  background: var(--x-bg);
+  font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: #333639;
+  border-radius: 4px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.5; }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+  .animate-fadeIn {
+    animation: fadeIn 0.3s ease;
+  }
+}
