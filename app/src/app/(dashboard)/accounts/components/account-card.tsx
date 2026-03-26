@@ -2,6 +2,7 @@
 
 import { formatDate, formatNumber } from "@/lib/utils";
 import { CheckCircle, XCircle, Pause } from "lucide-react";
+import { useRouter } from "next/navigation";
 import {
   LineChart,
   Line,
@@ -27,6 +28,7 @@ interface AccountCardProps {
 }
 
 export function AccountCard({ account }: AccountCardProps) {
+  const router = useRouter();
   const isTokenExpired = new Date(account.tokenExpiresAt) < new Date();
   const chartData = account.followersHistory
     .slice()
@@ -101,8 +103,9 @@ export function AccountCard({ account }: AccountCardProps) {
         )}
         {account.unreadCount > 0 && (
           <span
-            className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold"
+            className="inline-block px-2 py-0.5 rounded-full text-xs font-semibold cursor-pointer hover:opacity-80"
             style={{ background: "rgba(244,33,46,0.12)", color: "#F4212E" }}
+            onClick={() => router.push(`/inbox?accountId=${account.id}&status=unread`)}
           >
             未読 {account.unreadCount}
           </span>

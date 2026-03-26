@@ -22,14 +22,14 @@ const actionColor: Record<string, string> = {
 
 export function AuditTable({ logs }: { logs: AuditLogEntry[] }) {
   return (
-    <table className="w-full text-sm">
-      <thead style={{ background: "#1E2124", borderBottom: "1px solid #2F3336" }}>
+    <table className="w-full text-sm border-collapse">
+      <thead>
         <tr>
-          <th className="text-left py-3 px-4 text-xs font-medium" style={{ color: "#71767B" }}>日時</th>
-          <th className="text-left py-3 px-4 text-xs font-medium" style={{ color: "#71767B" }}>ユーザー</th>
-          <th className="text-left py-3 px-4 text-xs font-medium" style={{ color: "#71767B" }}>操作</th>
-          <th className="text-left py-3 px-4 text-xs font-medium" style={{ color: "#71767B" }}>対象</th>
-          <th className="text-left py-3 px-4 text-xs font-medium" style={{ color: "#71767B" }}>詳細</th>
+          <th className="text-left py-3 px-4 text-xs font-medium" style={{ background: "#1E2124", borderBottom: "1px solid #2F3336", color: "#71767B", borderRadius: "1rem 0 0 0" }}>日時</th>
+          <th className="text-left py-3 px-4 text-xs font-medium" style={{ background: "#1E2124", borderBottom: "1px solid #2F3336", color: "#71767B" }}>ユーザー</th>
+          <th className="text-left py-3 px-4 text-xs font-medium" style={{ background: "#1E2124", borderBottom: "1px solid #2F3336", color: "#71767B" }}>操作</th>
+          <th className="text-left py-3 px-4 text-xs font-medium" style={{ background: "#1E2124", borderBottom: "1px solid #2F3336", color: "#71767B" }}>対象</th>
+          <th className="text-left py-3 px-4 text-xs font-medium" style={{ background: "#1E2124", borderBottom: "1px solid #2F3336", color: "#71767B", borderRadius: "0 1rem 0 0" }}>詳細</th>
         </tr>
       </thead>
       <tbody>
@@ -44,7 +44,7 @@ export function AuditTable({ logs }: { logs: AuditLogEntry[] }) {
             <td className="py-2.5 px-4 text-xs whitespace-nowrap" style={{ color: "#71767B" }}>
               {log.createdAt}
             </td>
-            <td className="py-2.5 px-4 text-xs" style={{ color: "#E7E9EA" }}>
+            <td className="py-2.5 px-4 text-xs whitespace-nowrap" style={{ color: "#E7E9EA" }}>
               {log.user?.name || "システム"}
             </td>
             <td className="py-2.5 px-4">

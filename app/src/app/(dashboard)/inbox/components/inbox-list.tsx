@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -36,6 +37,8 @@ interface InboxListProps {
   items: InboxItem[];
   summaryMap: Record<string, number>;
   teamMembers: { id: string; name: string }[];
+  initialTab?: string;
+  filteredAccount?: { handle: string; name: string };
 }
 
 const priorityColor: Record<string, string> = {
@@ -52,9 +55,9 @@ const typeLabel: Record<string, string> = {
   dm: "DM",
 };
 
-export function InboxList({ items, summaryMap, teamMembers }: InboxListProps) {
+export function InboxList({ items, summaryMap, teamMembers, initialTab, filteredAccount }: InboxListProps) {
   const router = useRouter();
-  const [activeTab, setActiveTab] = useState("unread");
+  const [activeTab, setActiveTab] = useState(initialTab ?? "unread");
 
   const filtered = items.filter(
     (item) => activeTab === "all" || item.status === activeTab
@@ -76,6 +79,17 @@ export function InboxList({ items, summaryMap, teamMembers }: InboxListProps) {
 
   return (
     <div className="space-y-4">
+      {/* アカウントフィルタバナー */}
+      {filteredAccount && (
+        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-blue-50 text-blue-700 text-sm">
+          <span>
+            <span className="font-semibold">@{filteredAccount.handle}</span> の未読を表示中
+          </span>
+          <Link href="/inbox" className="ml-auto text-xs underline hover:opacity-70">
+            すべて表示
+          </Link>
+        </div>
+      )}
       {/* サマリー */}
       <div className="grid grid-cols-4 gap-3">
         {[
