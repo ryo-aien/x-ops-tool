@@ -1,4 +1,4 @@
-import { decrypt } from "@/lib/crypto/token";
+import { getAccessToken } from "@/lib/x/auth";
 
 export interface TweetResult {
   xTweetId: string;
@@ -12,19 +12,18 @@ export interface TweetError {
 
 /**
  * X API v2 でツイートを投稿する
- * @param tokenEncrypted  暗号化済みアクセストークン
- * @param text            投稿テキスト
- * @returns               成功時は xTweetId、失敗時は error
+ * @param xAccountId  DBアカウントID（トークンの自動リフレッシュ対応）
+ * @param text        投稿テキスト
  */
 export async function postTweet(
-  tokenEncrypted: string,
+  xAccountId: string,
   text: string
 ): Promise<TweetResult | TweetError> {
   let accessToken: string;
   try {
-    accessToken = decrypt(tokenEncrypted);
-  } catch {
-    return { error: "トークンの復号化に失敗しました" };
+    ({ accessToken } = await getAccessToken(xAccountId));
+  } catch (e) {
+    return { error: e instanceof Error ? e.message : "トークンの取得に失敗しました" };
   }
 
   const res = await fetch("https://api.twitter.com/2/tweets", {

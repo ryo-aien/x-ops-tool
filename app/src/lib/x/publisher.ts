@@ -67,7 +67,7 @@ export async function publishPost(postId: string): Promise<PublishResult[]> {
       orgId: post.orgId,
     });
 
-    const result = await postTweet(xAccount.tokenEncrypted, variant.text);
+    const result = await postTweet(xAccount.id, variant.text);
 
     if (result.error) {
       await writeSystemLog({

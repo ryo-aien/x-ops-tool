@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/client";
-import { decrypt } from "@/lib/crypto/token";
+import { getAccessToken } from "@/lib/x/auth";
 
 type RouteContext = { params: Promise<{ id: string }> };
 
@@ -63,9 +63,12 @@ export async function POST(_req: NextRequest, { params }: RouteContext) {
 
   let accessToken: string;
   try {
-    accessToken = decrypt(account.tokenEncrypted);
-  } catch {
-    return NextResponse.json({ error: "トークンの復号化に失敗しました" }, { status: 500 });
+    ({ accessToken } = await getAccessToken(id));
+  } catch (e) {
+    return NextResponse.json(
+      { error: e instanceof Error ? e.message : "トークンの取得に失敗しました" },
+      { status: 401 }
+    );
   }
 
   // X API v2: ユーザープロフィール
