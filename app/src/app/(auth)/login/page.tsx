@@ -12,7 +12,7 @@ const XLogo = () => (
 
 export default function LoginPage() {
   const router = useRouter();
-  const [email, setEmail] = useState("");
+  const [email, setEmail] = useState("admin@demo.com");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
