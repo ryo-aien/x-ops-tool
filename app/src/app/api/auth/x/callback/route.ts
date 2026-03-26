@@ -100,33 +100,49 @@ export async function GET(req: NextRequest) {
   const refreshTokenEncrypted = refresh_token ? encrypt(refresh_token) : null;
   const tokenExpiresAt = new Date(Date.now() + (expires_in ?? 7200) * 1000);
 
+  // orgId チェック
+  if (!user.orgId) {
+    console.error("X callback: user.orgId is missing", { userId: user.id });
+    return clearCookies(
+      NextResponse.redirect(`${baseUrl}/accounts?error=no_org`)
+    );
+  }
+
   // DB に保存（既存アカウントはトークン更新）
-  const account = await prisma.xAccount.upsert({
-    where: { xUserId: xUser.id },
-    create: {
-      orgId: user.orgId!,
-      xUserId: xUser.id,
-      handle: xUser.username,
-      name: xUser.name,
-      avatarUrl: xUser.profile_image_url ?? null,
-      verified: false,
-      tokenEncrypted,
-      refreshTokenEncrypted,
-      tokenExpiresAt,
-      followersCount: 0,
-      followingCount: 0,
-      postsCount: 0,
-    },
-    update: {
-      handle: xUser.username,
-      name: xUser.name,
-      avatarUrl: xUser.profile_image_url ?? null,
-      tokenEncrypted,
-      refreshTokenEncrypted,
-      tokenExpiresAt,
-      status: "active",
-    },
-  });
+  let account;
+  try {
+    account = await prisma.xAccount.upsert({
+      where: { xUserId: xUser.id },
+      create: {
+        orgId: user.orgId,
+        xUserId: xUser.id,
+        handle: xUser.username,
+        name: xUser.name,
+        avatarUrl: xUser.profile_image_url ?? null,
+        verified: false,
+        tokenEncrypted,
+        refreshTokenEncrypted,
+        tokenExpiresAt,
+        followersCount: 0,
+        followingCount: 0,
+        postsCount: 0,
+      },
+      update: {
+        handle: xUser.username,
+        name: xUser.name,
+        avatarUrl: xUser.profile_image_url ?? null,
+        tokenEncrypted,
+        refreshTokenEncrypted,
+        tokenExpiresAt,
+        status: "active",
+      },
+    });
+  } catch (err) {
+    console.error("X callback: DB upsert failed", err);
+    return clearCookies(
+      NextResponse.redirect(`${baseUrl}/accounts?error=db_save_failed`)
+    );
+  }
 
   await writeAuditLog({
     orgId: user.orgId!,

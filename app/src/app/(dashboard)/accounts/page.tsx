@@ -11,6 +11,8 @@ const ERROR_MESSAGES: Record<string, string> = {
   oauth_state_mismatch: "セキュリティエラーが発生しました。再度お試しください",
   token_exchange_failed: "トークン取得に失敗しました。再度お試しください",
   user_fetch_failed: "Xユーザー情報の取得に失敗しました",
+  no_org: "組織情報が見つかりません。再度ログインしてください",
+  db_save_failed: "データベースへの保存に失敗しました。再度お試しください",
 };
 
 interface AccountsPageProps {
