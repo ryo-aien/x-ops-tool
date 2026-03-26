@@ -53,3 +53,6 @@ test-results/
 # Misc
 *.pem
 .vercel
+
+# Deploy docs
+VERCEL_DEPLOY.md

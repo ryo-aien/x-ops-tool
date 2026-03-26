@@ -71,10 +71,31 @@ cd /workspace/docker
 docker-compose up --build
 ```
 
-初回起動時に以下が自動実行されます：
+初回起動前に、マイグレーションファイルを生成してください：
+
+```bash
+cd /workspace/docker
+docker-compose up -d db
+docker-compose exec app npx prisma migrate dev --name init
+```
+
+生成された `app/prisma/migrations/` を Git に commit します：
+
+```bash
+git add app/prisma/migrations/
+git commit -m "add initial prisma migration"
+```
+
+その後、通常起動します：
+
+```bash
+docker-compose up --build
+```
+
+起動時に以下が自動実行されます：
 
 1. PostgreSQL・Redis コンテナの起動
-2. `prisma db push` でスキーマ反映
+2. `prisma migrate deploy` でマイグレーション適用
 3. `prisma db seed` でデモデータ投入
 4. `npm run dev` で開発サーバー起動
 
@@ -126,7 +147,7 @@ npm run dev          # 開発サーバー起動
 npm run build        # プロダクションビルド
 npm run lint         # ESLint チェック
 
-npm run db:push      # スキーマを DB に反映
+npm run db:migrate   # マイグレーションファイル生成（スキーマ変更時）
 npm run db:seed      # シードデータ投入
 npm run db:studio    # Prisma Studio（DB GUI）起動
 npm run db:generate  # Prisma クライアント再生成

@@ -20,12 +20,13 @@ services:
       - AUTH_SECRET=dev-secret-change-in-production-min-32-chars
       - TOKEN_ENCRYPTION_KEY=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef
       - NODE_ENV=development
+      - DEPLOY_TARGET=docker
     depends_on:
       db:
         condition: service_healthy
       redis:
         condition: service_started
-    command: sh -c "npx prisma db push --skip-generate && npx prisma db seed && npm run dev"
+    command: sh -c "npx prisma migrate deploy && npx prisma db seed && npm run dev"
 
   db:
     image: postgres:16-alpine
