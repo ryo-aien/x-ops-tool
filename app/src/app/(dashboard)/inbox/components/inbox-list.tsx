@@ -133,7 +133,7 @@ export function InboxList({ items, summaryMap, teamMembers, initialTab, filtered
                 key={item.id}
                 className={cn(
                   "border",
-                  item.priority === "urgent" && "border-red-300 animate-pulse"
+                  item.priority === "urgent" && item.status !== "done" && "border-red-300 animate-pulse"
                 )}
               >
                 <CardContent className="p-4">

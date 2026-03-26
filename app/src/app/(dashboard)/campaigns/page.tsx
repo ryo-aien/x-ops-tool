@@ -47,7 +47,7 @@ export default async function CampaignsPage() {
               <Card key={campaign.id}>
                 <CardContent className="p-4 space-y-3">
                   <div className="flex items-start justify-between">
-                    <h3 className="font-medium text-gray-900 text-sm">{campaign.name}</h3>
+                    <h3 className="font-medium text-white text-sm">{campaign.name}</h3>
                     <Badge variant={statusColor[campaign.status] || "secondary"}>
                       {getStatusLabel(campaign.status)}
                     </Badge>
