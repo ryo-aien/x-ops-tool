@@ -71,7 +71,7 @@ cd /workspace/docker
 docker-compose up --build
 ```
 
-初回起動前に、マイグレーションファイルを生成してください：
+初回起動前に、マイグレーションファイルを生成してください
 
 ```bash
 cd /workspace/docker
