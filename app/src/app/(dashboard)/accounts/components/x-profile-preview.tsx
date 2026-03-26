@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { formatNumber } from "@/lib/utils";
-import { CheckCircle, Pause, XCircle, Heart, Repeat2, MessageCircle, BarChart2 } from "lucide-react";
+import { CheckCircle, Pause, XCircle, Heart, Repeat2, MessageCircle, BarChart2, RefreshCw } from "lucide-react";
 
 interface Tweet {
   id: string;
@@ -23,9 +23,9 @@ interface PreviewData {
     followers_count: number;
     following_count: number;
     tweet_count: number;
-    listed_count: number;
   } | null;
   tweets: Tweet[];
+  fetchedAt?: string;
 }
 
 interface XProfilePreviewProps {
@@ -57,11 +57,13 @@ function timeAgo(iso: string): string {
 export function XProfilePreview({ account }: XProfilePreviewProps) {
   const [data, setData] = useState<PreviewData | null>(null);
   const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const isTokenExpired = new Date(account.tokenExpiresAt) < new Date();
   const initial = account.handle.charAt(0).toUpperCase();
 
+  // アカウント切り替え時はDBキャッシュを取得するだけ
   useEffect(() => {
     setLoading(true);
     setError(null);
@@ -69,16 +71,34 @@ export function XProfilePreview({ account }: XProfilePreviewProps) {
 
     fetch(`/api/accounts/${account.id}/preview`)
       .then((r) => r.json())
-      .then((json) => {
+      .then((json: { cached: PreviewData | null; error?: string }) => {
         if (json.error) {
           setError(json.error);
         } else {
-          setData(json as PreviewData);
+          setData(json.cached);
         }
       })
       .catch(() => setError("データの取得に失敗しました"))
       .finally(() => setLoading(false));
   }, [account.id]);
+
+  // 手動更新: X APIを叩いてDBに保存
+  const handleRefresh = () => {
+    setRefreshing(true);
+    setError(null);
+
+    fetch(`/api/accounts/${account.id}/preview`, { method: "POST" })
+      .then((r) => r.json())
+      .then((json: { cached: PreviewData | null; error?: string }) => {
+        if (json.error) {
+          setError(json.error);
+        } else {
+          setData(json.cached);
+        }
+      })
+      .catch(() => setError("更新に失敗しました"))
+      .finally(() => setRefreshing(false));
+  };
 
   const avatarUrl = data?.profileImageUrl?.replace("_normal", "_400x400") ?? account.avatarUrl;
   const followers = data?.publicMetrics?.followers_count ?? account.followersCount;
@@ -112,32 +132,48 @@ export function XProfilePreview({ account }: XProfilePreviewProps) {
             )}
           </div>
 
-          {/* ステータスバッジ */}
-          <div className="flex items-center gap-2 pb-1">
-            {account.status === "active" ? (
-              <span
-                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                style={{ background: "rgba(0,186,124,0.12)", color: "#00BA7C" }}
+          {/* ステータスバッジ＋更新ボタン */}
+          <div className="flex flex-col items-end gap-1.5 pb-1">
+            <div className="flex items-center gap-2">
+              {account.status === "active" ? (
+                <span
+                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(0,186,124,0.12)", color: "#00BA7C" }}
+                >
+                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#00BA7C" }} />
+                  接続中
+                </span>
+              ) : (
+                <span
+                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(83,100,113,0.2)", color: "#536471" }}
+                >
+                  <Pause className="w-3 h-3" />
+                  停止中
+                </span>
+              )}
+              {isTokenExpired && (
+                <span
+                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+                  style={{ background: "rgba(244,33,46,0.12)", color: "#F4212E" }}
+                >
+                  <XCircle className="w-3 h-3" />
+                  トークン期限切れ
+                </span>
+              )}
+              <button
+                onClick={handleRefresh}
+                disabled={refreshing}
+                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-opacity"
+                style={{ background: "rgba(29,155,240,0.12)", color: "#1D9BF0", opacity: refreshing ? 0.5 : 1 }}
               >
-                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#00BA7C" }} />
-                接続中
-              </span>
-            ) : (
-              <span
-                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                style={{ background: "rgba(83,100,113,0.2)", color: "#536471" }}
-              >
-                <Pause className="w-3 h-3" />
-                停止中
-              </span>
-            )}
-            {isTokenExpired && (
-              <span
-                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                style={{ background: "rgba(244,33,46,0.12)", color: "#F4212E" }}
-              >
-                <XCircle className="w-3 h-3" />
-                トークン期限切れ
+                <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
+                {refreshing ? "取得中..." : "更新"}
+              </button>
+            </div>
+            {data?.fetchedAt && (
+              <span className="text-xs" style={{ color: "#536471" }}>
+                最終取得: {new Date(data.fetchedAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
               </span>
             )}
           </div>

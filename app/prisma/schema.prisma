@@ -114,6 +114,7 @@ model XAccount {
   inboxItems         InboxItem[]
   analyticsSnapshots AnalyticsSnapshot[]
   campaignAccounts   CampaignAccount[]
+  previewCache       XAccountPreviewCache?
 
   @@map("x_accounts")
 }
@@ -298,6 +299,22 @@ model AuditLog {
 
   @@index([orgId, createdAt(sort: Desc)])
   @@map("audit_logs")
+}
+
+model XAccountPreviewCache {
+  id             String   @id @default(uuid())
+  xAccountId     String   @unique @map("x_account_id")
+  description    String?  @db.Text
+  profileImageUrl String? @map("profile_image_url")
+  followersCount  Int     @default(0) @map("followers_count")
+  followingCount  Int     @default(0) @map("following_count")
+  tweetCount      Int     @default(0) @map("tweet_count")
+  tweetsJson      Json    @default("[]") @map("tweets_json")
+  fetchedAt       DateTime @map("fetched_at")
+
+  xAccount XAccount @relation(fields: [xAccountId], references: [id], onDelete: Cascade)
+
+  @@map("x_account_preview_caches")
 }
 
 model SystemLog {
