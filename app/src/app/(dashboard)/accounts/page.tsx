@@ -1,9 +1,9 @@
 import { auth } from "@/auth";
 import { prisma } from "@/lib/db/client";
 import { Header } from "@/components/layout/header";
-import { AccountCard } from "./components/account-card";
 import { AccountSummary } from "./components/account-summary";
 import { AddAccountButton } from "./components/add-account-button";
+import { AccountsClient } from "./components/accounts-client";
 
 const ERROR_MESSAGES: Record<string, string> = {
   oauth_denied: "X認証がキャンセルされました",
@@ -77,24 +77,13 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
             />
           </div>
         )}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {accounts.map((account) => (
-            <AccountCard
-              key={account.id}
-              account={{
-                ...account,
-                unreadCount: account._count.inboxItems,
-                followersHistory: account.analyticsSnapshots,
-              }}
-            />
-          ))}
-          {accounts.length === 0 && (
-            <div className="col-span-3 text-center py-12 text-gray-500">
-              <p>アカウントがまだ接続されていません</p>
-              <p className="text-sm mt-1">「アカウントを追加」からXアカウントを接続してください</p>
-            </div>
-          )}
-        </div>
+        <AccountsClient
+          accounts={accounts.map((account) => ({
+            ...account,
+            unreadCount: account._count.inboxItems,
+            followersHistory: account.analyticsSnapshots,
+          }))}
+        />
       </div>
     </div>
   );

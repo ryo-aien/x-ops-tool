@@ -25,9 +25,10 @@ interface AccountCardProps {
     unreadCount: number;
     followersHistory: { date: Date; followers: number }[];
   };
+  selected?: boolean;
 }
 
-export function AccountCard({ account }: AccountCardProps) {
+export function AccountCard({ account, selected = false }: AccountCardProps) {
   const router = useRouter();
   const isTokenExpired = new Date(account.tokenExpiresAt) < new Date();
   const chartData = account.followersHistory
@@ -41,14 +42,14 @@ export function AccountCard({ account }: AccountCardProps) {
     <div
       className="rounded-2xl p-5 space-y-4 transition-colors"
       style={{
-        background: "#16181C",
-        border: "1px solid #2F3336",
+        background: selected ? "#1C1F23" : "#16181C",
+        border: selected ? "1px solid #1D9BF0" : "1px solid #2F3336",
       }}
       onMouseEnter={(e) => {
         (e.currentTarget as HTMLElement).style.background = "#1C1F23";
       }}
       onMouseLeave={(e) => {
-        (e.currentTarget as HTMLElement).style.background = "#16181C";
+        (e.currentTarget as HTMLElement).style.background = selected ? "#1C1F23" : "#16181C";
       }}
     >
       {/* Top row */}
