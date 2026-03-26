@@ -13,6 +13,7 @@ import {
   AlertTriangle,
   Megaphone,
   FileText,
+  Terminal,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -29,7 +30,8 @@ const navItems = [
   { href: "/approval",  icon: CheckSquare,    label: "承認ワークフロー" },
   { href: "/analytics", icon: BarChart3,      label: "分析" },
   { href: "/listening", icon: Radio,          label: "リスニング" },
-  { href: "/audit",     icon: Shield,         label: "監査ログ" },
+  { href: "/audit",        icon: Shield,    label: "監査ログ" },
+  { href: "/system-logs",  icon: Terminal,  label: "システムログ" },
   { href: "/guardrails",icon: AlertTriangle,  label: "ガードレール" },
   { href: "/campaigns", icon: Megaphone,      label: "キャンペーン" },
   { href: "/reports",   icon: FileText,       label: "レポート" },

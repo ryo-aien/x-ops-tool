@@ -98,8 +98,9 @@ model XAccount {
   verified        Boolean   @default(false)
   category        String?
   status          String    @default("active") // active | paused
-  tokenEncrypted  String    @map("token_encrypted") @db.Text
-  tokenExpiresAt  DateTime  @map("token_expires_at")
+  tokenEncrypted         String    @map("token_encrypted") @db.Text
+  refreshTokenEncrypted  String?   @map("refresh_token_encrypted") @db.Text
+  tokenExpiresAt         DateTime  @map("token_expires_at")
   followersCount  Int       @default(0) @map("followers_count")
   followingCount  Int       @default(0) @map("following_count")
   postsCount      Int       @default(0) @map("posts_count")
@@ -296,4 +297,22 @@ model AuditLog {
 
   @@index([orgId, createdAt(sort: Desc)])
   @@map("audit_logs")
+}
+
+model SystemLog {
+  id        String   @id @default(uuid())
+  level     String   // info | warn | error
+  source    String   // 発生元 (例: publisher, approve, oauth, guardrails)
+  message   String   @db.Text
+  detail    String?  @db.Text
+  stack     String?  @db.Text
+  postId    String?  @map("post_id")
+  accountId String?  @map("account_id")
+  userId    String?  @map("user_id")
+  orgId     String?  @map("org_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@index([level, createdAt(sort: Desc)])
+  @@index([orgId, createdAt(sort: Desc)])
+  @@map("system_logs")
 }

@@ -74,11 +74,11 @@ export default async function ReportsPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">対象期間</label>
-                <input type="date" className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm" />
+                <input type="date" className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm text-black bg-white" />
               </div>
               <div>
                 <label className="block text-xs font-medium text-gray-700 mb-1">終了日</label>
-                <input type="date" className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm" />
+                <input type="date" className="w-full h-9 rounded-md border border-gray-300 px-3 text-sm text-black bg-white" />
               </div>
               <div className="flex items-end">
                 <Button className="w-full gap-2">
