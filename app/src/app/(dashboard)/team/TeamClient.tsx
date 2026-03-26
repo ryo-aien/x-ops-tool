@@ -218,39 +218,41 @@ export function TeamClient({ initialMembers, currentUserId }: TeamClientProps) {
 
       {/* 招待ダイアログ */}
       <Dialog open={showInvite} onOpenChange={setShowInvite}>
-        <DialogContent>
+        <DialogContent className="bg-gray-900 text-gray-100 border border-gray-700">
           <DialogHeader>
             <DialogTitle>メンバーを追加</DialogTitle>
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div className="space-y-1">
-              <Label htmlFor="invite-name">名前</Label>
+              <Label htmlFor="invite-name" className="text-gray-300">名前</Label>
               <Input
                 id="invite-name"
                 placeholder="山田 太郎"
                 value={inviteName}
                 onChange={(e) => setInviteName(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-gray-100 placeholder:text-gray-500"
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="invite-email">メールアドレス <span className="text-red-500">*</span></Label>
+              <Label htmlFor="invite-email" className="text-gray-300">メールアドレス <span className="text-red-400">*</span></Label>
               <Input
                 id="invite-email"
                 type="email"
                 placeholder="example@company.com"
                 value={inviteEmail}
                 onChange={(e) => setInviteEmail(e.target.value)}
+                className="bg-gray-800 border-gray-600 text-gray-100 placeholder:text-gray-500"
               />
             </div>
             <div className="space-y-1">
-              <Label htmlFor="invite-role">ロール</Label>
+              <Label htmlFor="invite-role" className="text-gray-300">ロール</Label>
               <Select value={inviteRole} onValueChange={(v) => setInviteRole(v as Role)}>
-                <SelectTrigger id="invite-role">
+                <SelectTrigger id="invite-role" className="bg-gray-800 border-gray-600 text-gray-100">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="bg-gray-800 border-gray-600 text-gray-100">
                   {EDITABLE_ROLES.map((r) => (
-                    <SelectItem key={r.value} value={r.value}>
+                    <SelectItem key={r.value} value={r.value} className="text-gray-100 focus:bg-gray-700 focus:text-white">
                       {r.label}
                     </SelectItem>
                   ))}
@@ -258,11 +260,11 @@ export function TeamClient({ initialMembers, currentUserId }: TeamClientProps) {
               </Select>
             </div>
             {inviteError && (
-              <p className="text-sm text-red-600">{inviteError}</p>
+              <p className="text-sm text-red-400">{inviteError}</p>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setShowInvite(false)}>
+            <Button variant="outline" onClick={() => setShowInvite(false)} className="border-gray-600 text-gray-300 hover:bg-gray-800">
               キャンセル
             </Button>
             <Button onClick={handleInvite} disabled={inviteLoading}>
