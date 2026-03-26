@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Textarea } from "@/components/ui/textarea";
 import { formatDate, getStatusLabel } from "@/lib/utils";
+import Link from "next/link";
 
 interface PostVariant {
   id: string;
@@ -107,6 +108,15 @@ export function ApprovalList({
                 差し戻し理由: {post.rejectReason}
               </div>
             )}
+            {post.status === "rejected" && (
+              <div className="mt-2">
+                <Link href={`/compose?editPostId=${post.id}`}>
+                  <Button size="sm" variant="outline" className="text-xs">
+                    修正して再申請
+                  </Button>
+                </Link>
+              </div>
+            )}
             {post.scheduledAt && (
               <p className="text-xs text-gray-500 mt-1">
                 予約: {formatDate(post.scheduledAt)}
@@ -183,7 +193,7 @@ export function ApprovalList({
       </Tabs>
 
       <Dialog open={!!rejectDialog} onOpenChange={() => setRejectDialog(null)}>
-        <DialogContent>
+        <DialogContent style={{ background: "#1E2124", borderColor: "#2F3336" }}>
           <DialogHeader>
             <DialogTitle>差し戻し理由を入力</DialogTitle>
           </DialogHeader>

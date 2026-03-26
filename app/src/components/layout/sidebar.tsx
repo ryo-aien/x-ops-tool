@@ -24,21 +24,22 @@ const XLogo = () => (
 );
 
 const navItems = [
-  { href: "/accounts",  icon: Users,         label: "アカウント管理" },
-  { href: "/compose",   icon: PenSquare,      label: "投稿作成" },
-  { href: "/inbox",     icon: Inbox,          label: "受信箱" },
-  { href: "/approval",  icon: CheckSquare,    label: "承認ワークフロー" },
-  { href: "/analytics", icon: BarChart3,      label: "分析" },
-  { href: "/listening", icon: Radio,          label: "リスニング" },
-  { href: "/audit",        icon: Shield,    label: "監査ログ" },
-  { href: "/system-logs",  icon: Terminal,  label: "システムログ" },
-  { href: "/guardrails",icon: AlertTriangle,  label: "ガードレール" },
-  { href: "/campaigns", icon: Megaphone,      label: "キャンペーン" },
-  { href: "/reports",   icon: FileText,       label: "レポート" },
+  { href: "/accounts",    icon: Users,          label: "アカウント管理", adminOnly: false },
+  { href: "/compose",     icon: PenSquare,      label: "投稿作成",       adminOnly: false },
+  { href: "/inbox",       icon: Inbox,          label: "受信箱",         adminOnly: false },
+  { href: "/approval",    icon: CheckSquare,    label: "承認ワークフロー", adminOnly: false },
+  { href: "/analytics",   icon: BarChart3,      label: "分析",           adminOnly: false },
+  { href: "/listening",   icon: Radio,          label: "リスニング",      adminOnly: false },
+  { href: "/audit",       icon: Shield,         label: "監査ログ",        adminOnly: true },
+  { href: "/system-logs", icon: Terminal,       label: "システムログ",    adminOnly: true },
+  { href: "/guardrails",  icon: AlertTriangle,  label: "ガードレール",    adminOnly: false },
+  { href: "/campaigns",   icon: Megaphone,      label: "キャンペーン",    adminOnly: false },
+  { href: "/reports",     icon: FileText,       label: "レポート",        adminOnly: false },
 ];
 
-export function Sidebar() {
+export function Sidebar({ role }: { role?: string }) {
   const pathname = usePathname();
+  const visibleItems = navItems.filter((item) => !item.adminOnly || role === "admin");
 
   return (
     <aside
@@ -65,7 +66,7 @@ export function Sidebar() {
 
       {/* Nav */}
       <nav className="flex-1 py-2 px-2 space-y-0.5">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
           const isActive = pathname.startsWith(item.href);
           return (

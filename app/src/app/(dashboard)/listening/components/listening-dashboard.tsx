@@ -137,7 +137,7 @@ export function ListeningDashboard({ keywords }: ListeningDashboardProps) {
                 <div className="flex items-start justify-between">
                   <div>
                     <div className="flex items-center gap-2">
-                      <span className="font-medium text-gray-900">{kw.keyword}</span>
+                      <span className="font-medium text-white">{kw.keyword}</span>
                       <span
                         className={`text-xs px-2 py-0.5 rounded-full ${typeColors[kw.type] || typeColors.custom}`}
                       >

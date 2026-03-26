@@ -32,8 +32,18 @@ export async function PATCH(
     data: {
       status: body.status,
       scheduledAt: body.scheduledAt ? new Date(body.scheduledAt) : undefined,
+      rejectReason: body.status === "pending" ? null : undefined,
     },
   });
+
+  if (body.variants && Array.isArray(body.variants)) {
+    for (const v of body.variants as { id: string; text: string }[]) {
+      await prisma.postVariant.update({
+        where: { id: v.id },
+        data: { text: v.text },
+      });
+    }
+  }
 
   await writeAuditLog({
     orgId: user.orgId!,

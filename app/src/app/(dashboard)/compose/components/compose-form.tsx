@@ -28,19 +28,38 @@ interface Campaign {
   name: string;
 }
 
+interface PostVariant {
+  id: string;
+  text: string;
+  xAccount: { id: string; handle: string; name: string; verified: boolean };
+}
+
+interface EditPost {
+  id: string;
+  rejectReason?: string | null;
+  variants: PostVariant[];
+}
+
 interface ComposeFormProps {
   accounts: Account[];
   campaigns: Campaign[];
+  editPost?: EditPost | null;
 }
 
 const MAX_CHARS = 280;
 
-export function ComposeForm({ accounts, campaigns }: ComposeFormProps) {
+export function ComposeForm({ accounts, campaigns, editPost }: ComposeFormProps) {
   const router = useRouter();
-  const [selectedAccounts, setSelectedAccounts] = useState<string[]>([]);
-  const [sharedText, setSharedText] = useState("");
-  const [perAccountText, setPerAccountText] = useState<Record<string, string>>({});
-  const [usePerAccount, setUsePerAccount] = useState(false);
+
+  const initialSelectedAccounts = editPost ? editPost.variants.map((v) => v.xAccount.id) : [];
+  const initialPerAccountText = editPost
+    ? Object.fromEntries(editPost.variants.map((v) => [v.xAccount.id, v.text]))
+    : {};
+
+  const [selectedAccounts, setSelectedAccounts] = useState<string[]>(initialSelectedAccounts);
+  const [sharedText, setSharedText] = useState(editPost?.variants[0]?.text ?? "");
+  const [perAccountText, setPerAccountText] = useState<Record<string, string>>(initialPerAccountText);
+  const [usePerAccount, setUsePerAccount] = useState(editPost ? editPost.variants.length > 1 : false);
   const [scheduledAt, setScheduledAt] = useState("");
   const [campaignId, setCampaignId] = useState("");
   const [submitting, setSubmitting] = useState(false);
@@ -61,12 +80,7 @@ export function ComposeForm({ accounts, campaigns }: ComposeFormProps) {
       return;
     }
 
-    const variants = selectedAccounts.map((id) => ({
-      xAccountId: id,
-      text: getTextForAccount(id),
-    }));
-
-    const textEmpty = variants.some((v) => !v.text.trim());
+    const textEmpty = selectedAccounts.some((id) => !getTextForAccount(id).trim());
     if (textEmpty) {
       setErrors(["投稿テキストを入力してください"]);
       return;
@@ -75,16 +89,35 @@ export function ComposeForm({ accounts, campaigns }: ComposeFormProps) {
     setSubmitting(true);
     setErrors([]);
 
-    const res = await fetch("/api/posts", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        variants,
-        status: actionStatus,
-        scheduledAt: scheduledAt || undefined,
-        campaignId: (campaignId && campaignId !== "none") ? campaignId : undefined,
-      }),
-    });
+    let res: Response;
+
+    if (editPost) {
+      // 編集モード：既存variantのテキストを更新して再申請
+      const variants = editPost.variants.map((v) => ({
+        id: v.id,
+        text: getTextForAccount(v.xAccount.id),
+      }));
+      res = await fetch(`/api/posts/${editPost.id}`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ status: actionStatus, variants }),
+      });
+    } else {
+      const variants = selectedAccounts.map((id) => ({
+        xAccountId: id,
+        text: getTextForAccount(id),
+      }));
+      res = await fetch("/api/posts", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          variants,
+          status: actionStatus,
+          scheduledAt: scheduledAt || undefined,
+          campaignId: (campaignId && campaignId !== "none") ? campaignId : undefined,
+        }),
+      });
+    }
 
     setSubmitting(false);
 
@@ -102,6 +135,13 @@ export function ComposeForm({ accounts, campaigns }: ComposeFormProps) {
 
   return (
     <div className="max-w-3xl space-y-6">
+      {/* 差し戻し理由 */}
+      {editPost?.rejectReason && (
+        <div className="p-3 rounded-md border border-red-300 bg-red-950 text-red-300 text-sm">
+          <span className="font-medium">差し戻し理由：</span>{editPost.rejectReason}
+        </div>
+      )}
+
       {/* アカウント選択 */}
       <Card>
         <CardHeader>
@@ -109,16 +149,18 @@ export function ComposeForm({ accounts, campaigns }: ComposeFormProps) {
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">
-            {accounts.map((acc) => (
+            {(editPost ? editPost.variants.map((v) => v.xAccount) : accounts).map((acc) => (
               <button
                 key={acc.id}
                 type="button"
-                onClick={() => toggleAccount(acc.id)}
+                onClick={() => !editPost && toggleAccount(acc.id)}
+                disabled={!!editPost}
                 className={cn(
                   "flex items-center gap-1.5 px-3 py-1.5 rounded-full border text-sm transition-colors",
                   selectedAccounts.includes(acc.id)
                     ? "bg-blue-600 text-white border-blue-600"
-                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400"
+                    : "bg-white text-gray-700 border-gray-300 hover:border-blue-400",
+                  editPost && "opacity-70 cursor-default"
                 )}
               >
                 {acc.verified && <CheckCircle className="h-3 w-3" />}

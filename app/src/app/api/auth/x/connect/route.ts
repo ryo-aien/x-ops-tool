@@ -43,7 +43,7 @@ export async function GET() {
     code_challenge_method: "S256",
   });
 
-  const authUrl = `https://twitter.com/i/oauth2/authorize?${params}`;
+  const authUrl = `https://twitter.com/i/oauth2/authorize?${params}&force_login=true`;
 
   const response = NextResponse.redirect(authUrl);
   response.cookies.set("x_oauth_state", state, {
