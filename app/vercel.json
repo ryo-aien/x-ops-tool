@@ -3,5 +3,16 @@
   "buildCommand": "prisma generate && next build",
   "env": {
     "PRISMA_GENERATE_SKIP_AUTOINSTALL": "true"
-  }
+  },
+  "headers": [
+    {
+      "source": "/favicon.ico",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "no-cache"
+        }
+      ]
+    }
+  ]
 }

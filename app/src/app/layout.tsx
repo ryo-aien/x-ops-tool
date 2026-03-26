@@ -4,6 +4,11 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "X Multi-Account Manager",
   description: "複数XアカウントをまとめてゴールするSNS管理ツール",
+  icons: {
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+    ],
+  },
 };
 
 export default function RootLayout({
