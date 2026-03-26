@@ -56,10 +56,15 @@ export function AccountCard({ account, selected = false }: AccountCardProps) {
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
           <div
-            className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+            className="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0 overflow-hidden"
             style={{ background: "#1D9BF022", color: "#1D9BF0" }}
           >
-            {initial}
+            {account.avatarUrl ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={account.avatarUrl.replace("_normal", "_bigger")} alt={account.name} className="w-full h-full object-cover" />
+            ) : (
+              initial
+            )}
           </div>
           <div>
             <div className="flex items-center gap-1">
