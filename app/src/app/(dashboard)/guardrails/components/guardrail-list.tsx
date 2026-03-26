@@ -82,7 +82,7 @@ export function GuardrailList({ guardrails, canEdit }: GuardrailListProps) {
                       {rule.configJson && typeof rule.configJson === "object" && !Array.isArray(rule.configJson) && Object.entries(rule.configJson as Record<string, JsonValue>).map(([k, v]) => (
                         <p key={k}>
                           <span className="font-medium">{k}:</span>{" "}
-                          {Array.isArray(v) ? (v as string[]).join(", ") : String(v)}
+                          <span style={{ color: "#E7E9EA" }}>{Array.isArray(v) ? (v as string[]).join(", ") : String(v)}</span>
                         </p>
                       ))}
                     </div>

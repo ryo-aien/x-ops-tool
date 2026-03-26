@@ -193,7 +193,7 @@ export function AnalyticsDashboard({
             </thead>
             <tbody>
               {compareTable.map((row) => (
-                <tr key={row.id} className="border-b border-gray-100 hover:bg-gray-50">
+                <tr key={row.id} className="border-b" style={{ borderColor: "#2F3336" }} onMouseEnter={(e) => (e.currentTarget as HTMLElement).style.background = "#1C1F23"} onMouseLeave={(e) => (e.currentTarget as HTMLElement).style.background = ""}>
                   <td className="py-2 px-3">
                     <div className="flex items-center gap-2">
                       <div
