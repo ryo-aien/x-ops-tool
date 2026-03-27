@@ -31,7 +31,7 @@ export async function GET() {
         select: { date: true, followers: true },
       },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
   });
 
   const result = accounts.map((acc) => ({

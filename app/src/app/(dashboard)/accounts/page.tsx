@@ -36,7 +36,7 @@ export default async function AccountsPage({ searchParams }: AccountsPageProps) 
         select: { date: true, followers: true },
       },
     },
-    orderBy: { createdAt: "asc" },
+    orderBy: [{ sortOrder: "asc" }, { createdAt: "asc" }],
   });
 
   const totalFollowers = accounts.reduce((sum, a) => sum + a.followersCount, 0);

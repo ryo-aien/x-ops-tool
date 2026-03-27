@@ -106,6 +106,7 @@ model XAccount {
   followingCount  Int       @default(0) @map("following_count")
   postsCount      Int       @default(0) @map("posts_count")
   lastPostAt      DateTime? @map("last_post_at")
+  sortOrder       Int       @default(0) @map("sort_order")
   createdAt       DateTime  @default(now()) @map("created_at")
 
   organization       Organization            @relation(fields: [orgId], references: [id])

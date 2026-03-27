@@ -99,7 +99,14 @@ export function AccountsClient({ accounts: initialAccounts }: AccountsClientProp
       setAccounts((prev) => {
         const oldIndex = prev.findIndex((a) => a.id === active.id);
         const newIndex = prev.findIndex((a) => a.id === over.id);
-        return arrayMove(prev, oldIndex, newIndex);
+        const reordered = arrayMove(prev, oldIndex, newIndex);
+        // 並び順をサーバーに永続化
+        fetch("/api/accounts/reorder", {
+          method: "PATCH",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ orderedIds: reordered.map((a) => a.id) }),
+        }).catch(console.error);
+        return reordered;
       });
     }
   };
