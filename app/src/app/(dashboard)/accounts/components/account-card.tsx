@@ -30,7 +30,7 @@ interface AccountCardProps {
 
 export function AccountCard({ account, selected = false }: AccountCardProps) {
   const router = useRouter();
-  const isTokenExpired = new Date(account.tokenExpiresAt) < new Date();
+  const isTokenExpired = account.status === "token_expired";
   const chartData = account.followersHistory
     .slice()
     .reverse()

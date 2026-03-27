@@ -48,7 +48,11 @@ export async function getAccessToken(xAccountId: string): Promise<TokenResult> {
 
   if (!res.ok) {
     const body = await res.text();
-    // リフレッシュ失敗時はアカウントを期限切れ状態のままにする
+    // リフレッシュ失敗時はDBステータスを token_expired に更新
+    await prisma.xAccount.update({
+      where: { id: xAccountId },
+      data: { status: "token_expired" },
+    });
     throw new Error(`トークンのリフレッシュに失敗しました (${res.status}): ${body}`);
   }
 
