@@ -118,8 +118,8 @@ export function XProfilePreview({ account }: XProfilePreviewProps) {
 
       {/* プロフィールセクション */}
       <div className="px-4 pb-4 flex-shrink-0">
-        <div className="relative -mt-10 mb-3 flex items-end justify-between">
-          {/* アバター */}
+        {/* アバター（バナーに重ねる） */}
+        <div className="relative -mt-10 mb-2">
           <div
             className="w-20 h-20 rounded-full border-4 flex items-center justify-center font-bold text-2xl flex-shrink-0 overflow-hidden"
             style={{ borderColor: "#000", background: "#1D9BF022", color: "#1D9BF0" }}
@@ -131,52 +131,50 @@ export function XProfilePreview({ account }: XProfilePreviewProps) {
               initial
             )}
           </div>
+        </div>
 
-          {/* ステータスバッジ＋更新ボタン */}
-          <div className="flex flex-col items-end gap-1.5 pb-1">
-            <div className="flex items-center gap-2">
-              {account.status === "active" ? (
-                <span
-                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{ background: "rgba(0,186,124,0.12)", color: "#00BA7C" }}
-                >
-                  <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#00BA7C" }} />
-                  接続中
-                </span>
-              ) : (
-                <span
-                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{ background: "rgba(83,100,113,0.2)", color: "#536471" }}
-                >
-                  <Pause className="w-3 h-3" />
-                  停止中
-                </span>
-              )}
-              {isTokenExpired && (
-                <span
-                  className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
-                  style={{ background: "rgba(244,33,46,0.12)", color: "#F4212E" }}
-                >
-                  <XCircle className="w-3 h-3" />
-                  トークン期限切れ
-                </span>
-              )}
-              <button
-                onClick={handleRefresh}
-                disabled={refreshing}
-                className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-opacity"
-                style={{ background: "rgba(29,155,240,0.12)", color: "#1D9BF0", opacity: refreshing ? 0.5 : 1 }}
-              >
-                <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
-                {refreshing ? "取得中..." : "更新"}
-              </button>
-            </div>
-            {data?.fetchedAt && (
-              <span className="text-xs" style={{ color: "#536471" }}>
-                最終取得: {new Date(data.fetchedAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
-              </span>
-            )}
-          </div>
+        {/* ステータスバッジ＋更新ボタン（バナーの外） */}
+        <div className="flex items-center justify-end gap-2 mb-3">
+          {account.status === "active" ? (
+            <span
+              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(0,186,124,0.12)", color: "#00BA7C" }}
+            >
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: "#00BA7C" }} />
+              接続中
+            </span>
+          ) : (
+            <span
+              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(83,100,113,0.2)", color: "#536471" }}
+            >
+              <Pause className="w-3 h-3" />
+              停止中
+            </span>
+          )}
+          {isTokenExpired && (
+            <span
+              className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold"
+              style={{ background: "rgba(244,33,46,0.12)", color: "#F4212E" }}
+            >
+              <XCircle className="w-3 h-3" />
+              トークン期限切れ
+            </span>
+          )}
+          <button
+            onClick={handleRefresh}
+            disabled={refreshing}
+            className="flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold transition-opacity"
+            style={{ background: "rgba(29,155,240,0.12)", color: "#1D9BF0", opacity: refreshing ? 0.5 : 1 }}
+          >
+            <RefreshCw className={`w-3 h-3 ${refreshing ? "animate-spin" : ""}`} />
+            {refreshing ? "取得中..." : "更新"}
+          </button>
+          {data?.fetchedAt && (
+            <span className="text-xs" style={{ color: "#536471" }}>
+              最終取得: {new Date(data.fetchedAt).toLocaleString("ja-JP", { month: "numeric", day: "numeric", hour: "2-digit", minute: "2-digit" })}
+            </span>
+          )}
         </div>
 
         {/* 名前・ハンドル */}
