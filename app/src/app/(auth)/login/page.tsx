@@ -13,6 +13,7 @@ const XLogo = () => (
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState("admin@demo.com");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
@@ -23,13 +24,13 @@ export default function LoginPage() {
 
     const result = await signIn("credentials", {
       email,
-      password: "demo",
+      password,
       redirect: false,
     });
 
     setLoading(false);
     if (result?.error) {
-      setError("ログインできませんでした。メールアドレスを確認してください。");
+      setError("メールアドレスまたはパスワードが正しくありません。");
     } else {
       router.push("/accounts");
     }
@@ -88,6 +89,31 @@ export default function LoginPage() {
               />
             </div>
 
+            <div>
+              <label
+                className="block text-sm font-medium mb-1.5"
+                style={{ color: "#E7E9EA" }}
+              >
+                パスワード
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="パスワードを入力"
+                required
+                className="w-full px-4 py-2.5 rounded-xl text-sm outline-none transition-colors"
+                style={{
+                  background: "#000",
+                  border: "1px solid #2F3336",
+                  color: "#E7E9EA",
+                  fontFamily: "inherit",
+                }}
+                onFocus={(e) => (e.currentTarget.style.borderColor = "#1D9BF0")}
+                onBlur={(e) => (e.currentTarget.style.borderColor = "#2F3336")}
+              />
+            </div>
+
             <div
               className="text-xs p-3 rounded-xl"
               style={{
@@ -99,8 +125,8 @@ export default function LoginPage() {
               <p className="font-semibold mb-1" style={{ color: "#1D9BF0" }}>
                 デモアカウント
               </p>
-              <p>管理者: admin@demo.com</p>
-              <p>投稿者: editor@demo.com</p>
+              <p>管理者: admin@demo.com / admin1234</p>
+              <p>投稿者: editor@demo.com / editor1234</p>
             </div>
 
             {error && (

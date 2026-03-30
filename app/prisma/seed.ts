@@ -1,8 +1,12 @@
 import { PrismaClient } from "@prisma/client";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  const adminPasswordHash = await bcrypt.hash("admin1234", 10);
+  const editorPasswordHash = await bcrypt.hash("editor1234", 10);
+
   // 組織の作成
   const org = await prisma.organization.upsert({
     where: { id: "org-demo-001" },
@@ -24,6 +28,7 @@ async function main() {
       email: "admin@demo.com",
       name: "田中 管理者",
       role: "admin",
+      passwordHash: adminPasswordHash,
     },
   });
 
@@ -37,6 +42,7 @@ async function main() {
       email: "editor@demo.com",
       name: "鈴木 投稿者",
       role: "editor",
+      passwordHash: editorPasswordHash,
     },
   });
 

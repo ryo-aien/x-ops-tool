@@ -31,9 +31,10 @@ model User {
   orgId     String   @map("org_id")
   email     String   @unique
   name      String
-  role      String   @default("viewer") // admin | approver | editor | viewer
-  avatarUrl String?  @map("avatar_url")
-  createdAt DateTime @default(now()) @map("created_at")
+  role         String   @default("viewer") // admin | approver | editor | viewer
+  passwordHash String?  @map("password_hash")
+  avatarUrl    String?  @map("avatar_url")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   organization        Organization              @relation(fields: [orgId], references: [id])
   accountPermissions  UserAccountPermission[]
